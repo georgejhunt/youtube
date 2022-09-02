@@ -1,0 +1,9 @@
+sudo apt update && sudo apt upgrade
+sudo apt install software-properties-common
+sudo add-apt-repository ppa:deadsnakes/ppa
+apt install python3.8
+virtualenv -python python3.8 /opt/iiab/youtube-venv
+cd /opt/iiab/youtube-vent
+git clone https://github.com/openzim/youtube
+apt-get install python3.8-distutils
+
