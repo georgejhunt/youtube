@@ -13,6 +13,9 @@ tar xvf Python-3.8.12.tgz
 cd Python-3.8.12
 make altinstall 
 virtualenv -python python3.8 /opt/iiab/youtube-venv
+# pip was broken, the following two lines fixed it
+curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+python get-pip.py --force-reinstall
 cd /opt/iiab/youtube-venv
 git clone https://github.com/openzim/youtube
 apt-get install python3.8-distutils
