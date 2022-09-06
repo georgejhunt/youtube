@@ -21,4 +21,11 @@ git clone https://github.com/openzim/youtube
 apt-get install python3.8-distutils
 pip install youtube_dl
 pip install yt_dlp
+./get_js_deps.sh
+used start to pass options 
+#!/bin/bash -x
+# top level options for youtube2zim
+
+source /opt/iiab/youtube_env/bin/activate
+python3.8 ./youtube2zim --api-key $API_KEY --id PLs2auPpToJpaFnv9vrgKE0BabUH0-1zlM --type playlist --name first
 
