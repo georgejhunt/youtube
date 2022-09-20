@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # print the second line in each file in this directory to stdout
 import glob
 import os
