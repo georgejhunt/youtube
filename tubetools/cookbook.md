@@ -30,7 +30,8 @@ source /opt/iiab/yt-venv/bin/activate
 pip3 install youtube_dl youtube2zim yt_dlp
 ```
 6. get the assets that will be copied into each zim
-```cd /opt/iiab/youtube
+```
+cd /opt/iiab/youtube
 ./get_js_deps.sh
 ```
 7. I created a bash script to remember the options I wanted to start the program with:
@@ -42,4 +43,5 @@ source /opt/iiab/youtube_env/bin/activate
 python3.8 ./youtube2zim --api-key $API_KEY --id PLs2auPpToJpaFnv9vrgKE0BabUH0-1zlM --type playlist --name first
 ```
 8. A folder was created at /output containing a zim file with a size of 2.2GB. Not yet tested.
-9. NOTE: As I often do, I started working on youtube2zim remotely over ssh.  But it turns out there is a lot of useful logging feedback that flows to dispay 0 (a local screen) that is not forwarded to a remote ssh session.
+
+NOTE: As I often do, I started working on youtube2zim remotely over ssh.  But it turns out there is a lot of useful logging feedback that flows to dispay 0 (a local screen) that is not forwarded to a remote ssh session.
