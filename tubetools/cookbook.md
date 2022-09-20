@@ -26,7 +26,7 @@ sudo virtualenv --python /usr/bin/python3.8 /opt/iiab/yt-venv
 ```
 5. Enable the venv and install some python packages in it:
 ```
-source /opt/iiab/yt_venv/bin/activate
+source /opt/iiab/yt-venv/bin/activate
 pip3 install youtube_dl youtube2zim yt_dlp
 ```
 6. get the assets that will be copied into each zim
