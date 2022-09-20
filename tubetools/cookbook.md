@@ -16,8 +16,8 @@ sudo apt update && sudo apt upgrade
 mkdir -p /opt/iiab
 sudo apt install wget build-essential libncursesw5-dev libssl-dev \
      libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev libffi-dev zlib1g-dev
-sudo apt-get install ffmpeg curl libzim-dev python3-virtualenv unzip
-sudo virtualenv --python /usr/bin/python3.8 /opt/iiab/youtube-venv
+sudo apt-get install ffmpeg curl libzim-dev python3-virtualenv unzip ssh
+sudo virtualenv --python /usr/bin/python3.8 /opt/iiab/yt-venv
 ```
 5. Enable the venv and install some python packages in it:
 ```
