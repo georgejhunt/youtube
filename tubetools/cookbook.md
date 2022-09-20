@@ -30,7 +30,7 @@ source /opt/iiab/yt-venv/bin/activate
 pip3 install youtube_dl youtube2zim yt_dlp
 ```
 6. get the assets that will be copied into each zim
-```
+```cd /opt/iiab/youtube
 ./get_js_deps.sh
 ```
 7. I created a bash script to remember the options I wanted to start the program with:
