@@ -1,0 +1,5 @@
+#!/bin/bash -x
+# top level options for youtube2zim
+
+source /opt/iiab/youtube_env/bin/activate
+python3.8 ./youtube2zim --api-key $API_KEY --low-quality --id PLs2auPpToJpaFnv9vrgKE0BabUH0-1zlM --type playlist --name first
