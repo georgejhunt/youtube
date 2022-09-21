@@ -28,6 +28,8 @@ sudo virtualenv --python /usr/bin/python3.8 /opt/iiab/yt-venv
 ```
 source /opt/iiab/yt-venv/bin/activate
 pip3 install youtube_dl youtube2zim yt_dlp
+pip install --upgrade google-api-python-client
+pip install --upgrade google-auth-oauthlib google-auth-httplib2
 ```
 6. get the assets that will be copied into each zim
 ```
