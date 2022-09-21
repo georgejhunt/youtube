@@ -14,7 +14,7 @@
     * Enable shared folders with the host.
     * Enable bidirectional use of "Shared Clipboard"
     * Turn on Network Bridging (Devices->Network->Network Settings->attached to "Bridged Adapter"
-4. Create a virtual machine with a .vdi (virtual disk image) large enough to hold twice the expected size of the largest zim). I suggest that after Ubuntu 20.04 is running the way you want, that you create a clone, and useam that, leaving the cloned image as backup and seed for another project or tarting over. (Cloning takes less than a minute, but a full installation can take more than 30 minutes).
+4. Create a virtual machine with a .vdi (virtual disk image) large enough to hold twice the expected size of the largest zim). I suggest that after Ubuntu 20.04 is running the way you want, that you create a clone, and use that, leaving the cloned image as backup and seed for another project or starting over. (Cloning takes less than a minute, but a full installation can take more than 30 minutes).
 5. Install the build dependencies.
 
 ```
