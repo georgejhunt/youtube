@@ -1,5 +1,6 @@
 ## Communicate the Easiest Setup
 #### General observations
+* The process of creating Zim files uses many packages (programs) that are not standard in a Linux installation image. The tools for generating zims have been developed over many years by many people. They have been tested, and probably work better, with somewhat older versions of things. Finding the right mix is part of the challenge.
 * Libzim is documented to work with Ubuntu 20.04.
 * youtube2zim has many references to using python 3.8.
 * Ubuntu 22.04 comes with python 3.9, whereas Ubuntu 20.04 installs python 3.8 by default.
@@ -48,6 +49,7 @@ python3.8 ./youtube2zim --api-key $API_KEY --id PLs2auPpToJpaFnv9vrgKE0BabUH0-1z
 ```
 9. A folder was created at /output containing a zim file with a size of 2.2GB. Not yet tested.
 10. This cookbook is intended to focus on "setup". I will update it from time to time as I discover shortcomings as I work with a new vbox instance.
-11. Look for specific "footprints" which will serve as examples to use tubetools.
-
+11. Look for specific "footprints" which will serve as examples of how to use tubetools.
+12. Get clear in your mind the difference between loading system software (apt-get install ..) vs installing python programs in yor venv with "pip install"
+13. Searching for system programs involves "apt-cache search <look for item>. https://pypi.org is really challenging to find the correct package.
 NOTE: As I often do, I started working on youtube2zim remotely over ssh.  But it turns out there is a lot of useful logging feedback that flows to dispay 0 (a local screen) that is not forwarded to a remote ssh session.
