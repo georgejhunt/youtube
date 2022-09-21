@@ -51,6 +51,6 @@ python3.8 ./youtube2zim --api-key $API_KEY --id PLs2auPpToJpaFnv9vrgKE0BabUH0-1z
 10. This cookbook is intended to focus on "setup". I will update it from time to time as I discover shortcomings as I work with a new vbox instance.
 11. Look for specific "footprints" which will serve as examples of how to use tubetools.
 12. Get clear in your mind the difference between loading system software (apt-get install ..) vs installing python programs in yor venv with "pip install"
-13. Searching for system programs involves "apt-cache search <look for item>. https://pypi.org is really challenging to find the correct package.
+13. Searching for system programs involves "apt-cache search (look for item)". https://pypi.org is really challenging to find the correct package -- there are so many of them from authors unknown.
    
 NOTE: As I often do, I started working on youtube2zim remotely over ssh.  But it turns out there is a lot of useful logging feedback that flows to dispay 0 (a local screen) that is not forwarded to a remote ssh session.
