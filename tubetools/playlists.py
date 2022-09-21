@@ -48,7 +48,7 @@ def parse_args():
     parser.add_argument("-c","--create", help='Create playlist with this name.')
     parser.add_argument("-d","--delete", help='Delete playlist by number.',type=int)
     parser.add_argument("-i","--items_file", help='Insert Ids into default playlist')
-    parser.add_argument("-l","--list", help='List numbers,names,itemCount in Channel.',action='store_true')
+    parser.add_argument("-l","--list", help='List playlists in your Channel.',action='store_true')
     parser.add_argument("-p","--setPL", help='Set the playlist to work on')
     parser.add_argument("-v","--videolist", help='List videos in current playlist.',action='store_true')
     parser.add_argument("-x","--xvideo", help='Remove this video from current playlist')
@@ -91,6 +91,9 @@ def get_my_playlists():
     my_playlists = []
     for item in playlists_list_response['items']:
         my_playlists.append([item['id'],item['snippet']['title'],item['contentDetails']['itemCount']])
+    if len(my_playlists) == 1:
+        with open(current_plid,'w') as fp:
+            fp.write(my_playlists[0][0])
     return my_playlists
 
 
@@ -158,7 +161,7 @@ def get_video_ids(playlistid):
     request = youtube.playlistItems().list(
         part="snippet,contentDetails",
         playlistId = playlistid,
-        maxResults=25,
+        maxResults=50,
     )
     try:
         responses = request.execute()

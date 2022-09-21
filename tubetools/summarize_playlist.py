@@ -51,9 +51,9 @@ def main():
         with open(current_plid,'r') as fp:
             plid = fp.read()
     yt = pytube.YouTube
-    if len(sys.argv) == 1:
-        print("\n videoId  seconds   h:m:s total time         bytes   Total")
-        print("============================================++++============")
+    print("\n videoId  seconds   h:m:s total time         bytes   Total")
+    print("============================================================")
+    if  sys.stdin.isatty():
         # take input from input pipe
         for line in sys.stdin:
             #print(line)
