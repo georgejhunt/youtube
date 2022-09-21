@@ -25,11 +25,12 @@ sudo apt-get install ffmpeg curl libzim-dev python3-virtualenv unzip ssh
 sudo virtualenv --python /usr/bin/python3.8 /opt/iiab/yt-venv
 ```
 5. Enable the venv and install some python packages in it:
-```
+``
 source /opt/iiab/yt-venv/bin/activate
 pip3 install youtube_dl youtube2zim yt_dlp
 pip install --upgrade google-api-python-client
 pip install --upgrade google-auth-oauthlib google-auth-httplib2
+pip install --upgrade oauth2client
 ```
 6. get the assets that will be copied into each zim
 ```
