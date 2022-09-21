@@ -35,3 +35,19 @@ optional arguments:
   -x XVIDEO, --xvideo XVIDEO
                         Remove this video from current playlist
 ```
+9. Pytube is a python-to-youtube interface which is pretty easy to understand. I wrote a program to recieve youtube Id's on an input pipe, and accumulate the length in time and the number of bytes:
+```
+(yt-venv) root@ubuntu2094:/opt/iiab/youtube/tubetools# cat addthese |./summarize_playlist.py 
+
+ videoId  seconds   h:m:s total time         bytes   Total
+============================================================
+kaYVL4FDvZA 4194 01:09:54 01:10:03 filesize:203270836 194M
+iDixml4rTeE 3421 00:57:01 02:07:04 filesize:164312044 351M
+. . .
+XTrmeop-N9s 7134 01:58:54 53:38:02 filesize:132046075 7.21G
+b7HGsomAMD0 8513 02:21:53 55:59:55 filesize:146761298 7.35G
+6k_y-Y6c5Uw 8088 02:14:48 58:14:43 filesize:149928866 7.49G
+(yt-venv) root@ubuntu2094:/opt/iiab/youtube/tubetools# 
+```
+Note the use of "cat" to feed the video Id's into local summarize_paylist.py (requireing "./" as a prefix). The summarize program indicates a total of 58 hours, and a size of approximately 7.49GB.  We intent to select the "--low-quality option" to conserve space, and hope that the quality will be good enough.
+10. We edit the 
