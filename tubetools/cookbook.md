@@ -6,6 +6,7 @@
 * When I tried to install python 3.8 on a rpi debian 11, I had lots of compatibility issues I had not had on Ubuntu 20.04.
 
 #### Proposed strategy
+1. All work with "tubetools" requires that you have a goodle account, and are signed in (this gives you access to playlists in your channel).
 1. Download https://mirror.pit.teraswitch.com/ubuntu-releases/20.04.5/ (can use another close mirror from https://launchpad.net/ubuntu/+cdmirrors.
 1. Load Ubuntu 20.04 iso on vbox -- assumes that most people can be running vbox on whatever machine they usse. To set up vbox:
     * Make sure to size the virtual disk (.vdi file) big enough.
@@ -24,7 +25,7 @@ sudo apt install wget build-essential libncursesw5-dev libssl-dev \
 sudo apt-get install ffmpeg curl libzim-dev python3-virtualenv unzip ssh
 sudo virtualenv --python /usr/bin/python3.8 /opt/iiab/yt-venv
 ```
-5. Enable the venv and install some python packages in it:
+6. Enable the venv and install some python packages in it:
 ```
 source /opt/iiab/yt-venv/bin/activate
 pip3 install youtube_dl youtube2zim yt_dlp pytube
@@ -32,12 +33,12 @@ pip install --upgrade google-api-python-client
 pip install --upgrade google-auth-oauthlib google-auth-httplib2
 pip install --upgrade oauth2client
 ```
-6. get the assets that will be copied into each zim
+7. get the assets that will be copied into each zim
 ```
 cd /opt/iiab/youtube
 ./get_js_deps.sh
 ```
-7. I created a bash script to remember the options I wanted to start the program with:
+8. I created a bash script to remember the options I wanted to start the program with:
 ```
 #!/bin/bash -x
 # top level options for youtube2zim
@@ -45,8 +46,8 @@ cd /opt/iiab/youtube
 source /opt/iiab/youtube_env/bin/activate
 python3.8 ./youtube2zim --api-key $API_KEY --id PLs2auPpToJpaFnv9vrgKE0BabUH0-1zlM --type playlist --name first
 ```
-8. A folder was created at /output containing a zim file with a size of 2.2GB. Not yet tested.
-9. This cookbook is intended to focus on "setup". I will update it from time to time as I discover shortcomings as I work with a new vbox instance.
-10. Look for specific "footprints" which will serve as examples to use tubetools.
+9. A folder was created at /output containing a zim file with a size of 2.2GB. Not yet tested.
+10. This cookbook is intended to focus on "setup". I will update it from time to time as I discover shortcomings as I work with a new vbox instance.
+11. Look for specific "footprints" which will serve as examples to use tubetools.
 
 NOTE: As I often do, I started working on youtube2zim remotely over ssh.  But it turns out there is a lot of useful logging feedback that flows to dispay 0 (a local screen) that is not forwarded to a remote ssh session.
