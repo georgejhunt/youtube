@@ -13,7 +13,7 @@ qyLevPfnIZ8
 ybsNFgVIQ0w
 . . .
 ```
-8. Then I wrote a python program that uses google's youbute api (applicatin interface) to create and load these video Id's into a youtube playlist. The playlist.py program has a help screen
+8. Then I wrote a python program that uses google's youbute api (application interface) to create and load these video Id's into a youtube playlist. Youtube2zim takes as its inpute the Id of a youtube playlist. The playlist.py program has a help screen
 ```
 ./playlists.py -h
 usage: playlists.py [-h] [-c CREATE] [-d DELETE] [-i ITEMS_FILE] [-l] [-p SETPL] [-v] [-x XVIDEO]
@@ -49,10 +49,10 @@ b7HGsomAMD0 8513 02:21:53 55:59:55 filesize:146761298 7.35G
 6k_y-Y6c5Uw 8088 02:14:48 58:14:43 filesize:149928866 7.49G
 (yt-venv) root@ubuntu2094:/opt/iiab/youtube/tubetools# 
 ```
-Note the use of "cat" command to feed the video Id's into local summarize_paylist.py (requireing "./" as a prefix). The summarize program indicates a total of 58 hours, and a size of approximately 7.49GB.  We intent to select the "--low-quality option" to conserve space, and hope that the quality will be good enough.
+Note the use of "cat" command to feed the video Id's into local summarize_paylist.py (requireing "./" as a prefix). The summarize program indicates a total of 58 hours, and a size of approximately 7.49GB.  We intent to select the "--low-quality" option to conserve space, and hope that the quality will be good enough.
 
 10. When I ran the start script with the "--low-quality" option:
 ```
 python3.8 ../youtube2zim --api-key $API_KEY  --low-quality --id  PLs2auPpToJpbLTwPQ1fSGq5wCSY8rmgB0 --type playlist --name kenya
 ```
-the zim generatiion seemed to stall trying to run ffmpeg (a re-encoding process), and the cpu utilization zoomed to 100%. So I removed that optionn. I'm in the middle of a zim generation that looks as it will take about 12 hours. I don't think the slowness is cpu related, since user space utilication is about 3%, and the machine is 90% idle. It must be google throttling.
+the zim generatiion seemed to stall trying to run ffmpeg (a re-encoding process), and the cpu utilization zoomed to 100%. So I removed that option. I'm in the middle of a zim generation that looks as it will take about 12 hours. I don't think the slowness is cpu related, since user space utilication is about 3%, and the machine is 90% idle. It must be google throttling.
