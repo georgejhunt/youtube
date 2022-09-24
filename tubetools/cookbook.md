@@ -36,6 +36,8 @@ pip install --upgrade oauth2client
 ```
 7. get the assets that will be copied into each zim
 ```
+cd /opt/iiab
+git clone https://github.com/openzim/youtube2zim
 cd /opt/iiab/youtube
 ./get_js_deps.sh
 ```
