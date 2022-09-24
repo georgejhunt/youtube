@@ -49,7 +49,7 @@ def parse_args():
     parser.add_argument("-d","--delete", help='Delete playlist by number.',type=int)
     parser.add_argument("-i","--items_file", help='Insert Ids into default playlist')
     parser.add_argument("-l","--list", help='List playlists in your Channel.',action='store_true')
-    parser.add_argument("-p","--setPL", help='Set the playlist to work on')
+    parser.add_argument("-p","--setPL", help='Set the playlist to work on',nargs='?',const=1,type=int)
     parser.add_argument("-v","--videolist", help='List videos in current playlist.',action='store_true')
     parser.add_argument("-x","--xvideo", help='Remove this video from current playlist')
     return parser.parse_args()
@@ -270,6 +270,7 @@ def main():
         for pl in my_playlists:
             print(num,pl)
             num += 1
+        print('\nCurrently selected playlist is %s'%get_current_playlistid())
         sys.exit(0)
    if args.delete:
         print('delete playlist by number %s'%args.delete)
@@ -285,8 +286,30 @@ def main():
             num += 1
         add_items_to_playlist(target_playlist)
    if args.setPL != None:
-        set_playlist_id(args.setPL)
-        sys.exit(0)
+        print('Set Playlist')
+        my_playlists = get_my_playlists()
+        num = 1
+        for pl in my_playlists:
+            print(num,pl)
+            num += 1
+        if len(my_playlists) == 1:
+            # just set it and  be done
+            with open(current_plid,'w') as fp:
+                fp.write(my_playlists[0][0])
+                print('You own only one playlist. . . . setting it as default')
+                return
+        response = input('Indicate which index you want')
+        response = int(response)
+        if not (response < len(my_playlists)+1 and response >0):
+            print('Please use the Playlist index from the list')
+            return
+        ans = input('Do you want to set PlaylistId to %s? y/N'%my_playlists[response-1][0])
+        if ans != 'Y' and ans != 'y':
+            print('Aborting playist change')
+            return
+        with open(current_plid,'w') as fp:
+            fp.write(my_playlists[response-1][0])
+            sys.exit(0)
    if args.xvideo:
         print('delete video by number %s'%args.delete)
         delete_video(args.xvideo)

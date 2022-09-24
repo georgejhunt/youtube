@@ -53,7 +53,7 @@ def main():
     yt = pytube.YouTube
     print("\n videoId  seconds   h:m:s total time         bytes   Total")
     print("============================================================")
-    if  sys.stdin.isatty():
+    if  not sys.stdin.isatty():
         # take input from input pipe
         for line in sys.stdin:
             #print(line)

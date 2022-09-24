@@ -2,4 +2,4 @@
 # top level options for youtube2zim
 
 source /opt/iiab/youtube_env/bin/activate
-python3.8 ./youtube2zim --api-key $API_KEY --low-quality --id PLs2auPpToJpaFnv9vrgKE0BabUH0-1zlM --type playlist --name first
+python3.8 ../youtube2zim --api-key $API_KEY  --id  PLs2auPpToJpbLTwPQ1fSGq5wCSY8rmgB0 --type playlist --name kenya
