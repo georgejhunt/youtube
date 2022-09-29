@@ -127,6 +127,11 @@ class Youtube2Zim:
             tmp_dir = Path(tmp_dir).expanduser().resolve()
             tmp_dir.mkdir(parents=True, exist_ok=True)
         self.build_dir = Path(tempfile.mkdtemp(dir=tmp_dir))
+        
+        # log file creation
+        log = Path('/output/run.log')
+        log.touch(exist_ok=True)
+        f = open(log)
 
         # process-related
         self.playlists = []

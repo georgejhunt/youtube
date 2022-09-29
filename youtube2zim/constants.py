@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # vim: ai ts=4 sts=4 et sw=4 nu
@@ -31,7 +32,8 @@ YOUTUBE_LANG_MAP = {
     "sh": "srp",  # Serbian
 }
 
-logger = getLogger(NAME, level=logging.DEBUG)
+FORMAT = "[%(name)s::%(asctime)s] %(levelname)s:%(message)s"
+logger = getLogger(NAME, level=logging.DEBUG, file='/output/run.log', file_format=FORMAT, file_level=logging.DEBUG)
 
 
 class Youtube:
