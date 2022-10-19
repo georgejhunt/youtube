@@ -73,6 +73,13 @@ def main():
     )
 
     parser.add_argument(
+        "--custom_titles",
+        help="Replace titles with the ones retrieved from a csv file",
+        default=False,
+        dest="custom_titles",
+    )
+
+    parser.add_argument(
         "--tmp-dir",
         help="Path to create temp folder in. Used for building ZIM file. Receives all data (storage space)",
     )

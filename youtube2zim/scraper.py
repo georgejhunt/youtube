@@ -8,6 +8,7 @@
     Create credentials (Other non-UI, Public Data)
 """
 
+import csv
 import os
 import json
 import locale
@@ -27,6 +28,7 @@ from pif import get_public_ip
 from babel.dates import format_date
 from dateutil import parser as dt_parser
 from kiwixstorage import KiwixStorage
+from pytube import extract
 from zimscraperlib.download import stream_file
 from zimscraperlib.zim import make_zim_file
 from zimscraperlib.fix_ogvjs_dist import fix_source_dir
@@ -84,6 +86,7 @@ class Youtube2Zim:
         dateafter,
         use_any_optimized_version,
         s3_url_with_credentials,
+        custom_titles,
         title=None,
         description=None,
         creator=None,
@@ -120,6 +123,7 @@ class Youtube2Zim:
         self.banner_image = banner_image
         self.main_color = main_color
         self.secondary_color = secondary_color
+        self.custom_titles = custom_titles
 
         # directory setup
         self.output_dir = Path(output_dir).expanduser().resolve()
@@ -132,7 +136,7 @@ class Youtube2Zim:
         log = Path('/output/run.log')
         log.touch(exist_ok=True)
         f = open(log)
-
+        
         # process-related
         self.playlists = []
         self.uploads_playlist_id = None
@@ -960,6 +964,25 @@ class Youtube2Zim:
                 playlist_videos = load_json(
                     self.cache_dir, f"playlist_{playlist.playlist_id}_videos"
                 )
+                if self.custom_titles:
+                    # we define variables in case we need to replace sth with values from a csv file as per ZW footprint
+                    videos_ids_list = []
+                    videos_titles_list = []
+                    t_index = 0
+                    with open(self.custom_titles, "r") as ct:
+                        data = csv.reader(ct,delimiter=',')
+            
+                        for row in data:
+                            id = row[0]
+                            title = row[1]
+                            id = extract.video_id(id)
+                            videos_ids_list.append(id)
+                            videos_titles_list.append(title)
+                    logger.info(f"Replacing titles using {self.custom_titles}")
+                    for items in playlist_videos:
+                        if t_index < len(videos_titles_list):
+                            items["snippet"]["title"] = videos_titles_list[t_index]
+                            t_index += 1
                 # filtering-out missing ones (deleted or not downloaded)
                 playlist_videos = list(filter(skip_deleted_videos, playlist_videos))
                 playlist_videos = list(filter(is_present, playlist_videos))
