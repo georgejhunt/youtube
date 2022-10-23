@@ -480,6 +480,25 @@ class Youtube2Zim:
             # we only return video_ids that we'll use later on. per-playlist JSON stored
             for playlist in self.playlists:
                 videos_json = get_videos_json(playlist.playlist_id)
+                if self.custom_titles:
+                    # we define variables in case we need to replace sth with values from a csv file as per ZW footprint
+                    videos_ids_list = []
+                    videos_titles_list = []
+                    t_index = 0
+                    with open(self.custom_titles, "r") as ct:
+                        data = csv.reader(ct,delimiter=',')
+            
+                        for row in data:
+                            id = row[0]
+                            title = row[1]
+                            id = extract.video_id(id)
+                            videos_ids_list.append(id)
+                            videos_titles_list.append(title)
+                    logger.info(f"Replacing titles using {self.custom_titles}")
+                    for items in videos_json:
+                        if t_index < len(videos_titles_list):
+                            items["snippet"]["title"] = videos_titles_list[t_index]
+                            t_index += 1
                 # filter in videos within date range and filter away deleted videos
                 skip_outofrange = functools.partial(
                     skip_outofrange_videos, self.dateafter
