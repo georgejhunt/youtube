@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 # vim: ai ts=4 sts=4 et sw=4 nu
 
-import logging
 import argparse
+import logging
 
-from .constants import NAME, SCRAPER, CHANNEL, PLAYLIST, USER, logger, YOUTUBE
+from .constants import CHANNEL, NAME, PLAYLIST, SCRAPER, USER, YOUTUBE, logger
 from .scraper import Youtube2Zim
 
 
@@ -74,7 +74,7 @@ def main():
 
     parser.add_argument(
         "--custom_titles",
-        nargs='+',
+        nargs="+",
         help="Replace titles with custom titles from text files",
         default=False,
         dest="custom_titles",

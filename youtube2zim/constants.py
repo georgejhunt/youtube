@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 # vim: ai ts=4 sts=4 et sw=4 nu
 
-import pathlib
 import logging
+import pathlib
 
 from zimscraperlib.logging import getLogger
 
@@ -32,7 +32,13 @@ YOUTUBE_LANG_MAP = {
 }
 
 FORMAT = "[%(name)s::%(asctime)s] %(levelname)s:%(message)s"
-logger = getLogger(NAME, level=logging.DEBUG, file='/output/run.log', file_format=FORMAT, file_level=logging.DEBUG)
+logger = getLogger(
+    NAME,
+    level=logging.DEBUG,
+    file="/output/run.log",
+    file_format=FORMAT,
+    file_level=logging.DEBUG,
+)
 
 
 class Youtube:

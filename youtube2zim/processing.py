@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 # vim: ai ts=4 sts=4 et sw=4 nu
 
-from zimscraperlib.video.encoding import reencode
 from zimscraperlib.image.optimization import optimize_image
 from zimscraperlib.image.transformation import resize_image
+from zimscraperlib.video.encoding import reencode
 
 from .constants import logger
 

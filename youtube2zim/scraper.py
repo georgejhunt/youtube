@@ -8,55 +8,55 @@
     Create credentials (Other non-UI, Public Data)
 """
 
-import os
-import json
-import locale
-import shutil
-import tempfile
-import subprocess
+import concurrent.futures
 import datetime
 import functools
-from pathlib import Path
+import json
+import locale
+import os
 import re
-import concurrent.futures
+import shutil
+import subprocess
+import tempfile
+from contextlib import ExitStack
 from gettext import gettext as _
+from pathlib import Path
 
 import jinja2
 import yt_dlp
-from contextlib import ExitStack
-from pif import get_public_ip
 from babel.dates import format_date
 from dateutil import parser as dt_parser
 from kiwixstorage import KiwixStorage
+from pif import get_public_ip
 from zimscraperlib.download import stream_file
-from zimscraperlib.zim import make_zim_file
 from zimscraperlib.fix_ogvjs_dist import fix_source_dir
+from zimscraperlib.i18n import NotFound, get_language_details, setlocale
 from zimscraperlib.image.presets import WebpHigh
-from zimscraperlib.image.transformation import resize_image
 from zimscraperlib.image.probing import get_colors, is_hex_color
-from zimscraperlib.video.presets import VideoWebmLow, VideoMp4Low
-from zimscraperlib.i18n import get_language_details, setlocale, NotFound
+from zimscraperlib.image.transformation import resize_image
+from zimscraperlib.video.presets import VideoMp4Low, VideoWebmLow
+from zimscraperlib.zim import make_zim_file
 
+from .constants import (
+    CHANNEL,
+    PLAYLIST,
+    ROOT_DIR,
+    SCRAPER,
+    USER,
+    YOUTUBE_LANG_MAP,
+    logger,
+)
+from .processing import post_process_video, process_thumbnail
+from .utils import clean_text, get_slug, load_json, save_json
 from .youtube import (
-    get_channel_json,
     credentials_ok,
     extract_playlists_details_from,
-    get_videos_json,
+    get_channel_json,
     get_videos_authors_info,
+    get_videos_json,
     save_channel_branding,
     skip_deleted_videos,
     skip_outofrange_videos,
-)
-from .utils import clean_text, load_json, save_json, get_slug
-from .processing import post_process_video, process_thumbnail
-from .constants import (
-    logger,
-    ROOT_DIR,
-    CHANNEL,
-    PLAYLIST,
-    USER,
-    SCRAPER,
-    YOUTUBE_LANG_MAP,
 )
 
 
@@ -130,12 +130,12 @@ class Youtube2Zim:
             tmp_dir = Path(tmp_dir).expanduser().resolve()
             tmp_dir.mkdir(parents=True, exist_ok=True)
         self.build_dir = Path(tempfile.mkdtemp(dir=tmp_dir))
-        
+
         # log file creation
-        log = Path('/output/run.log')
+        log = Path("/output/run.log")
         log.touch(exist_ok=True)
         f = open(log)
-        
+
         # process-related
         self.playlists = []
         self.uploads_playlist_id = None
@@ -226,7 +226,7 @@ class Youtube2Zim:
 
     @property
     def sorted_playlists(self):
-        """ sorted list of playlists (by title) but with Uploads one at first if any """
+        """sorted list of playlists (by title) but with Uploads one at first if any"""
         if len(self.playlists) < 2:
             return self.playlists
 
@@ -245,11 +245,11 @@ class Youtube2Zim:
         return (
             [sorted_playlists[index]]
             + sorted_playlists[0:index]
-            + sorted_playlists[index + 1:]
+            + sorted_playlists[index + 1 :]
         )
 
     def run(self):
-        """ execute the scraper step by step """
+        """execute the scraper step by step"""
 
         self.validate_id()
 
@@ -390,7 +390,7 @@ class Youtube2Zim:
             raise ValueError("Invalid YoutubeId")
 
     def prepare_build_folder(self):
-        """ prepare build folder before we start downloading data """
+        """prepare build folder before we start downloading data"""
 
         # copy assets
         shutil.copytree(self.assets_src_dir, self.assets_dir)
@@ -481,7 +481,9 @@ class Youtube2Zim:
                 videos_json = get_videos_json(playlist.playlist_id)
                 if self.custom_titles:
                     # print number of files found in self.custom_titles
-                    logger.info(f"found {len(self.custom_titles)} custom titles for videos")
+                    logger.info(
+                        f"found {len(self.custom_titles)} custom titles for videos"
+                    )
                     t_index = 0
 
                     # the files to be converted
@@ -494,7 +496,10 @@ class Youtube2Zim:
 
                     # iterate through the list
                     with ExitStack() as stack:
-                        files = [stack.enter_context(open(fname)) for fname in custom_titles_files]
+                        files = [
+                            stack.enter_context(open(fname))
+                            for fname in custom_titles_files
+                        ]
                         f_index = 0
                         # count the number of lines in each file
                         for file in files:
@@ -503,20 +508,31 @@ class Youtube2Zim:
                                 line_count = 0
                                 for line in file:
                                     line_count += 1
-                                logger.info(f"file {custom_titles_files[f_index]} has {line_count} lines")
-                                f_index += 1    
+                                logger.info(
+                                    f"file {custom_titles_files[f_index]} has {line_count} lines"
+                                )
+                                f_index += 1
 
                                 # raise an error and exit if the number of lines in each file is not the same
                                 if line_count != len(videos_json):
-                                    raise ValueError("the number of lines in each file must be the same")
+                                    raise ValueError(
+                                        "the number of lines in each file must be the same"
+                                    )
 
                         for line in zip(*files):
                             # reading line by line from the text files
-                            if regex_search(r"(?:v=|\/)([0-9A-Za-z_-]{11}).*", line) is not None:
-                                field_id.append(regex_search(r"(?:v=|\/)([0-9A-Za-z_-]{11}).*", line))
+                            if (
+                                regex_search(r"(?:v=|\/)([0-9A-Za-z_-]{11}).*", line)
+                                is not None
+                            ):
+                                field_id.append(
+                                    regex_search(
+                                        r"(?:v=|\/)([0-9A-Za-z_-]{11}).*", line
+                                    )
+                                )
                             else:
                                 field_title.append(line)
-                            
+
                         # Store the values in the resultant dictionary
                         for i in range(len(field_id)):
                             dict1[field_id[i]] = field_title[i]
@@ -524,17 +540,24 @@ class Youtube2Zim:
                         # raise an error and exit if duplicate video ids are found in dict1[field_id]
                         for id in field_id:
                             if field_id.count(id) > 1:
-                                raise ValueError("duplicate video ids found in custom titles file")
+                                raise ValueError(
+                                    "duplicate video ids found in custom titles file"
+                                )
 
                     # we replace the titles with the ones from the custom_titles.json file
                     logger.info(f"Replacing titles using {self.custom_titles}")
                     for video in videos_json:
                         if t_index < len(dict1):
-                            if video["contentDetails"]["videoId"] == dict1[t_index]["id"]:
+                            if (
+                                video["contentDetails"]["videoId"]
+                                == dict1[t_index]["id"]
+                            ):
                                 video["snippet"]["title"] = dict1[t_index]["title"]
                                 t_index += 1
                             else:
-                                raise ValueError("video id mismatch between custom titles file and youtube playlist")
+                                raise ValueError(
+                                    "video id mismatch between custom titles file and youtube playlist"
+                                )
 
                 # filter in videos within date range and filter away deleted videos
                 skip_outofrange = functools.partial(
@@ -637,7 +660,7 @@ class Youtube2Zim:
         return overall_succeeded, overall_failed
 
     def download_from_cache(self, key, video_path, encoder_version):
-        """ whether it successfully downloaded from cache """
+        """whether it successfully downloaded from cache"""
         if self.use_any_optimized_version:
             if not self.s3_storage.has_object(key, self.s3_storage.bucket_name):
                 return False
@@ -656,7 +679,7 @@ class Youtube2Zim:
         return True
 
     def upload_to_cache(self, key, video_path, encoder_version):
-        """ whether it successfully uploaded to cache """
+        """whether it successfully uploaded to cache"""
         try:
             self.s3_storage.upload_file(
                 video_path, key, meta={"encoder_version": f"v{encoder_version}"}
@@ -668,7 +691,7 @@ class Youtube2Zim:
         return True
 
     def download_video(self, video_id, options):
-        """ download the video from cache/youtube and return True if successful """
+        """download the video from cache/youtube and return True if successful"""
 
         preset = {"mp4": VideoMp4Low}.get(self.video_format, VideoWebmLow)()
         options_copy = options.copy()
@@ -717,7 +740,7 @@ class Youtube2Zim:
             return True
 
     def download_thumbnail(self, video_id, options):
-        """ download the thumbnail from cache/youtube and return True if successful """
+        """download the thumbnail from cache/youtube and return True if successful"""
 
         preset = WebpHigh()
         options_copy = options.copy()
@@ -760,7 +783,7 @@ class Youtube2Zim:
             return True
 
     def download_subtitles(self, video_id, options):
-        """ download subtitles for a video """
+        """download subtitles for a video"""
 
         options_copy = options.copy()
         options_copy.update({"skip_download": True, "writethumbnail": False})
@@ -771,9 +794,9 @@ class Youtube2Zim:
             logger.error(f"Could not download subtitles for {video_id}")
 
     def download_video_files_batch(self, options, videos_ids):
-        """ download video file and thumbnail for all videos in batch
+        """download video file and thumbnail for all videos in batch
 
-        returning succeeded and failed video ids """
+        returning succeeded and failed video ids"""
 
         succeeded = []
         failed = []
@@ -891,7 +914,7 @@ class Youtube2Zim:
                     shutil.rmtree(path, ignore_errors=True)
 
         def is_present(video):
-            """ whether this video has actually been succeffuly downloaded """
+            """whether this video has actually been succeffuly downloaded"""
             return video["contentDetails"]["videoId"] in actual_videos_ids
 
         def video_has_channel(videos_channels, video):
@@ -914,8 +937,8 @@ class Youtube2Zim:
                     except NotFound:
                         lang_simpl = re.sub(r"^([a-z]{2})-.+$", r"\1", lang)
                         subtitle = get_language_details(
-                                YOUTUBE_LANG_MAP.get(lang_simpl, lang_simpl)
-                            )
+                            YOUTUBE_LANG_MAP.get(lang_simpl, lang_simpl)
+                        )
                 except Exception:
                     logger.error(f"Failed to get language details for {lang}")
                     raise
@@ -1021,10 +1044,12 @@ class Youtube2Zim:
                 playlist_videos = load_json(
                     self.cache_dir, f"playlist_{playlist.playlist_id}_videos"
                 )
-                
+
                 if self.custom_titles:
                     # print number of files found in self.custom_titles
-                    logger.info(f"found {len(self.custom_titles)} custom titles for videos")
+                    logger.info(
+                        f"found {len(self.custom_titles)} custom titles for videos"
+                    )
                     t_index = 0
 
                     # the files to be converted
@@ -1037,7 +1062,10 @@ class Youtube2Zim:
 
                     # iterate through the list
                     with ExitStack() as stack:
-                        files = [stack.enter_context(open(fname)) for fname in custom_titles_files]
+                        files = [
+                            stack.enter_context(open(fname))
+                            for fname in custom_titles_files
+                        ]
                         f_index = 0
                         # count the number of lines in each file
                         for file in files:
@@ -1046,20 +1074,31 @@ class Youtube2Zim:
                                 line_count = 0
                                 for line in file:
                                     line_count += 1
-                                logger.info(f"file {custom_titles_files[f_index]} has {line_count} lines")
-                                f_index += 1    
+                                logger.info(
+                                    f"file {custom_titles_files[f_index]} has {line_count} lines"
+                                )
+                                f_index += 1
 
                             # raise an error and exit if the number of lines in each file is not the same
                             if line_count != len(playlist_videos):
-                                raise ValueError(f"file {custom_titles_files[f_index]} has {line_count} lines, but playlist {playlist.playlist_id} has {len(playlist_videos)} videos")
+                                raise ValueError(
+                                    f"file {custom_titles_files[f_index]} has {line_count} lines, but playlist {playlist.playlist_id} has {len(playlist_videos)} videos"
+                                )
 
                         for line in zip(*files):
                             # reading line by line from the text files
-                            if regex_search(r"(?:v=|\/)([0-9A-Za-z_-]{11}).*", line) is not None:
-                                field_id.append(regex_search(r"(?:v=|\/)([0-9A-Za-z_-]{11}).*", line))
+                            if (
+                                regex_search(r"(?:v=|\/)([0-9A-Za-z_-]{11}).*", line)
+                                is not None
+                            ):
+                                field_id.append(
+                                    regex_search(
+                                        r"(?:v=|\/)([0-9A-Za-z_-]{11}).*", line
+                                    )
+                                )
                             else:
                                 field_title.append(line)
-                            
+
                         # Store the values in the resultant dictionary
                         for i in range(len(field_id)):
                             dict1[field_id[i]] = field_title[i]
@@ -1067,18 +1106,24 @@ class Youtube2Zim:
                         # raise an error and exit if duplicate video ids are found in dict1[field_id]
                         for id in field_id:
                             if field_id.count(id) > 1:
-                                raise ValueError(f"Duplicate video id {id} found in {custom_titles_files[f_index]}")
-                
-                    
+                                raise ValueError(
+                                    f"Duplicate video id {id} found in {custom_titles_files[f_index]}"
+                                )
+
                     # we replace the titles with the ones from the custom_titles.json file
                     logger.info(f"Replacing titles using {self.custom_titles}")
                     for video in playlist_videos:
                         if t_index < len(dict1):
-                            if video["contentDetails"]["videoId"] == dict1[t_index]["id"]:
+                            if (
+                                video["contentDetails"]["videoId"]
+                                == dict1[t_index]["id"]
+                            ):
                                 video["snippet"]["title"] = dict1[t_index]["title"]
                                 t_index += 1
                             else:
-                                raise ValueError(f"Video id {video['contentDetails']['videoId']} not found in {self.custom_titles}")   
+                                raise ValueError(
+                                    f"Video id {video['contentDetails']['videoId']} not found in {self.custom_titles}"
+                                )
 
                 # filtering-out missing ones (deleted or not downloaded)
                 playlist_videos = list(filter(skip_deleted_videos, playlist_videos))

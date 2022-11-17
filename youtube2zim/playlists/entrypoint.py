@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 # vim: ai ts=4 sts=4 et sw=4 nu
 
-import logging
 import argparse
+import logging
 
-from ..constants import NAME, SCRAPER, CHANNEL, PLAYLIST, USER, logger
+from ..constants import CHANNEL, NAME, PLAYLIST, SCRAPER, USER, logger
 from ..utils import has_argument
 
 
