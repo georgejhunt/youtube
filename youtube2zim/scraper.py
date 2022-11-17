@@ -506,10 +506,10 @@ class Youtube2Zim:
                                 logger.info(f"file {custom_titles_files[f_index]} has {line_count} lines")
                                 f_index += 1    
 
-                        # raise an error and exit if the number of lines in each file is not the same
-                        if len(set(lines)) != 1: 
-                            logger.error("custom titles files have different number of lines")
-                            sys.exit(1)
+                                # raise an error and exit if the number of lines in each file is not the same
+                                if line_count != len(videos_json):
+                                    logger.error("the number of lines in each file must be the same")
+                                    sys.exit(1)
 
                         for line in zip(*files):
                             # reading line by line from the text files
@@ -1051,10 +1051,10 @@ class Youtube2Zim:
                                 logger.info(f"file {custom_titles_files[f_index]} has {line_count} lines")
                                 f_index += 1    
 
-                        # raise an error and exit if the number of lines in each file is not the same
-                        if len(set(lines)) != 1: 
-                            logger.error("custom titles files have different number of lines")
-                            sys.exit(1)
+                            # raise an error and exit if the number of lines in each file is not the same
+                            if line_count != len(playlist_videos):
+                                logger.error("the number of lines in each file must be the same")
+                                sys.exit(1)
 
                         for line in zip(*files):
                             # reading line by line from the text files
