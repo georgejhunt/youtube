@@ -8,7 +8,6 @@
     Create credentials (Other non-UI, Public Data)
 """
 
-import csv
 import os
 import json
 import locale
@@ -28,7 +27,6 @@ from pif import get_public_ip
 from babel.dates import format_date
 from dateutil import parser as dt_parser
 from kiwixstorage import KiwixStorage
-from pytube import extract
 from zimscraperlib.download import stream_file
 from zimscraperlib.zim import make_zim_file
 from zimscraperlib.fix_ogvjs_dist import fix_source_dir
@@ -481,24 +479,65 @@ class Youtube2Zim:
             for playlist in self.playlists:
                 videos_json = get_videos_json(playlist.playlist_id)
                 if self.custom_titles:
-                    # we define variables in case we need to replace sth with values from a csv file as per ZW footprint
-                    videos_ids_list = []
-                    videos_titles_list = []
+                    # print number of files found in self.custom_titles
+                    logger.info(f"found {len(self.custom_titles)} custom titles for videos")
                     t_index = 0
-                    with open(self.custom_titles, "r") as ct:
-                        data = csv.reader(ct,delimiter=',')
-            
-                        for row in data:
-                            id = row[0]
-                            title = row[1]
-                            id = extract.video_id(id)
-                            videos_ids_list.append(id)
-                            videos_titles_list.append(title)
+
+                    # the files to be converted
+                    custom_titles_files = self.custom_titles.split(",")
+
+                    # resultant dictionary
+                    dict1 = {}
+                    field_id = []
+                    field_title = []
+
+                    # iterate through the list
+                    with ExitStack() as stack:
+                        files = [stack.enter_context(open(fname)) for fname in custom_titles_files]
+                        f_index = 0
+                        # count the number of lines in each file
+                        for file in files:
+                            if f_index < len(custom_titles_files):
+                                # count and print the number of lines in each file
+                                line_count = 0
+                                for line in file:
+                                    line_count += 1
+                                logger.info(f"file {custom_titles_files[f_index]} has {line_count} lines")
+                                f_index += 1    
+
+                        # raise an error and exit if the number of lines in each file is not the same
+                        if len(set(lines)) != 1: 
+                            logger.error("custom titles files have different number of lines")
+                            sys.exit(1)
+
+                        for line in zip(*files):
+                            # reading line by line from the text files
+                            if regex_search(r"(?:v=|\/)([0-9A-Za-z_-]{11}).*", line) is not None:
+                                field_id.append(regex_search(r"(?:v=|\/)([0-9A-Za-z_-]{11}).*", line))
+                            else:
+                                field_title.append(line)
+                            
+                        # Store the values in the resultant dictionary
+                        for i in range(len(field_id)):
+                            dict1[field_id[i]] = field_title[i]
+
+                        # raise an error and exit if duplicate video ids are found in dict1[field_id]
+                        for id in field_id:
+                            if field_id.count(id) > 1:
+                                logger.error("duplicate video id found: " + id)")
+                                sys.exit(1)
+
+                    # we replace the titles with the ones from the custom_titles.json file
                     logger.info(f"Replacing titles using {self.custom_titles}")
-                    for items in videos_json:
-                        if t_index < len(videos_titles_list):
-                            items["snippet"]["title"] = videos_titles_list[t_index]
-                            t_index += 1
+                    for video in videos_json:
+                        if t_index < len(dict1):
+                            if video["contentDetails"]["videoId"] == dict1[t_index]["id"]:
+                                video["snippet"]["title"] = dict1[t_index]["title"]
+                                t_index += 1
+                            else:
+                                logger.error("video id not found in custom titles file: " + video["contentDetails"]["videoId"])
+                                sys.exit(1)
+
                 # filter in videos within date range and filter away deleted videos
                 skip_outofrange = functools.partial(
                     skip_outofrange_videos, self.dateafter
@@ -983,25 +1022,68 @@ class Youtube2Zim:
                 playlist_videos = load_json(
                     self.cache_dir, f"playlist_{playlist.playlist_id}_videos"
                 )
+                
                 if self.custom_titles:
-                    # we define variables in case we need to replace sth with values from a csv file as per ZW footprint
-                    videos_ids_list = []
-                    videos_titles_list = []
+                    # print number of files found in self.custom_titles
+                    logger.info(f"found {len(self.custom_titles)} custom titles for videos")
                     t_index = 0
-                    with open(self.custom_titles, "r") as ct:
-                        data = csv.reader(ct,delimiter=',')
-            
-                        for row in data:
-                            id = row[0]
-                            title = row[1]
-                            id = extract.video_id(id)
-                            videos_ids_list.append(id)
-                            videos_titles_list.append(title)
+
+                    # the files to be converted
+                    custom_titles_files = self.custom_titles.split(",")
+
+                    # resultant dictionary
+                    dict1 = {}
+                    field_id = []
+                    field_title = []
+
+                    # iterate through the list
+                    with ExitStack() as stack:
+                        files = [stack.enter_context(open(fname)) for fname in custom_titles_files]
+                        f_index = 0
+                        # count the number of lines in each file
+                        for file in files:
+                            if f_index < len(custom_titles_files):
+                                # count and print the number of lines in each file
+                                line_count = 0
+                                for line in file:
+                                    line_count += 1
+                                logger.info(f"file {custom_titles_files[f_index]} has {line_count} lines")
+                                f_index += 1    
+
+                        # raise an error and exit if the number of lines in each file is not the same
+                        if len(set(lines)) != 1: 
+                            logger.error("custom titles files have different number of lines")
+                            sys.exit(1)
+
+                        for line in zip(*files):
+                            # reading line by line from the text files
+                            if regex_search(r"(?:v=|\/)([0-9A-Za-z_-]{11}).*", line) is not None:
+                                field_id.append(regex_search(r"(?:v=|\/)([0-9A-Za-z_-]{11}).*", line))
+                            else:
+                                field_title.append(line)
+                            
+                        # Store the values in the resultant dictionary
+                        for i in range(len(field_id)):
+                            dict1[field_id[i]] = field_title[i]
+
+                        # raise an error and exit if duplicate video ids are found in dict1[field_id]
+                        for id in field_id:
+                            if field_id.count(id) > 1:
+                                logger.error("duplicate video id found: " + id)")
+                                sys.exit(1)
+                
+                    
+                    # we replace the titles with the ones from the custom_titles.json file
                     logger.info(f"Replacing titles using {self.custom_titles}")
-                    for items in playlist_videos:
-                        if t_index < len(videos_titles_list):
-                            items["snippet"]["title"] = videos_titles_list[t_index]
-                            t_index += 1
+                    for video in playlist_videos:
+                        if t_index < len(dict1):
+                            if video["contentDetails"]["videoId"] == dict1[t_index]["id"]:
+                                video["snippet"]["title"] = dict1[t_index]["title"]
+                                t_index += 1
+                            else:
+                                logger.error("video id not found in custom titles file: " + video["contentDetails"]["videoId"])
+                                sys.exit(1)   
+
                 # filtering-out missing ones (deleted or not downloaded)
                 playlist_videos = list(filter(skip_deleted_videos, playlist_videos))
                 playlist_videos = list(filter(is_present, playlist_videos))

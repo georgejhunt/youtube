@@ -74,7 +74,8 @@ def main():
 
     parser.add_argument(
         "--custom_titles",
-        help="Replace titles with the ones retrieved from a csv file",
+        nargs='+'
+        help="Replace titles with custom titles from text files",
         default=False,
         dest="custom_titles",
     )
