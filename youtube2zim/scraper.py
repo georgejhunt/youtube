@@ -524,7 +524,7 @@ class Youtube2Zim:
                         # raise an error and exit if duplicate video ids are found in dict1[field_id]
                         for id in field_id:
                             if field_id.count(id) > 1:
-                                logger.error("duplicate video id found: " + id")
+                                logger.error("duplicate video id found:" + id)
                                 sys.exit(1)
 
                     # we replace the titles with the ones from the custom_titles.json file
@@ -1069,7 +1069,7 @@ class Youtube2Zim:
                         # raise an error and exit if duplicate video ids are found in dict1[field_id]
                         for id in field_id:
                             if field_id.count(id) > 1:
-                                logger.error("duplicate video id found: " + id")
+                                logger.error("duplicate video id found:" + id)
                                 sys.exit(1)
                 
                     
