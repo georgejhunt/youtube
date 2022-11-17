@@ -508,8 +508,7 @@ class Youtube2Zim:
 
                                 # raise an error and exit if the number of lines in each file is not the same
                                 if line_count != len(videos_json):
-                                    logger.error("the number of lines in each file must be the same")
-                                    sys.exit(1)
+                                    raise ValueError("the number of lines in each file must be the same")
 
                         for line in zip(*files):
                             # reading line by line from the text files
@@ -525,8 +524,7 @@ class Youtube2Zim:
                         # raise an error and exit if duplicate video ids are found in dict1[field_id]
                         for id in field_id:
                             if field_id.count(id) > 1:
-                                logger.error("duplicate video id found:" + id)
-                                sys.exit(1)
+                                raise ValueError("duplicate video ids found in custom titles file")
 
                     # we replace the titles with the ones from the custom_titles.json file
                     logger.info(f"Replacing titles using {self.custom_titles}")
@@ -536,8 +534,7 @@ class Youtube2Zim:
                                 video["snippet"]["title"] = dict1[t_index]["title"]
                                 t_index += 1
                             else:
-                                logger.error("video id not found in custom titles file: " + video["contentDetails"]["videoId"])
-                                sys.exit(1)
+                                raise ValueError("video id mismatch between custom titles file and youtube playlist")
 
                 # filter in videos within date range and filter away deleted videos
                 skip_outofrange = functools.partial(
@@ -1053,8 +1050,7 @@ class Youtube2Zim:
 
                             # raise an error and exit if the number of lines in each file is not the same
                             if line_count != len(playlist_videos):
-                                logger.error("the number of lines in each file must be the same")
-                                sys.exit(1)
+                                raise ValueError(f"file {custom_titles_files[f_index]} has {line_count} lines, but playlist {playlist.playlist_id} has {len(playlist_videos)} videos")
 
                         for line in zip(*files):
                             # reading line by line from the text files
@@ -1070,8 +1066,7 @@ class Youtube2Zim:
                         # raise an error and exit if duplicate video ids are found in dict1[field_id]
                         for id in field_id:
                             if field_id.count(id) > 1:
-                                logger.error("duplicate video id found:" + id)
-                                sys.exit(1)
+                                raise ValueError(f"Duplicate video id {id} found in {custom_titles_files[f_index]}")
                 
                     
                     # we replace the titles with the ones from the custom_titles.json file
@@ -1082,8 +1077,7 @@ class Youtube2Zim:
                                 video["snippet"]["title"] = dict1[t_index]["title"]
                                 t_index += 1
                             else:
-                                logger.error("video id not found in custom titles file: " + video["contentDetails"]["videoId"])
-                                sys.exit(1)   
+                                raise ValueError(f"Video id {video['contentDetails']['videoId']} not found in {self.custom_titles}")   
 
                 # filtering-out missing ones (deleted or not downloaded)
                 playlist_videos = list(filter(skip_deleted_videos, playlist_videos))
