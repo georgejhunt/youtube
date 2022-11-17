@@ -23,6 +23,7 @@ from gettext import gettext as _
 
 import jinja2
 import yt_dlp
+from contextlib import ExitStack
 from pif import get_public_ip
 from babel.dates import format_date
 from dateutil import parser as dt_parser
