@@ -484,7 +484,7 @@ class Youtube2Zim:
                     t_index = 0
 
                     # the files to be converted
-                    custom_titles_files = self.custom_titles.split(",")
+                    custom_titles_files = self.custom_titles
 
                     # resultant dictionary
                     dict1 = {}
@@ -1029,7 +1029,7 @@ class Youtube2Zim:
                     t_index = 0
 
                     # the files to be converted
-                    custom_titles_files = self.custom_titles.split(",")
+                    custom_titles_files = self.custom_titles
 
                     # resultant dictionary
                     dict1 = {}
