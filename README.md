@@ -24,6 +24,7 @@ Installation
 ------------
 
 Here comes a few different ways to install `youtube2zim`.
+For step-by-step instructions and customization tips, check out our wiki in the cookbook.md page.
 
 ## Virtualenv
 
