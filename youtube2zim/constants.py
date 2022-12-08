@@ -32,10 +32,16 @@ YOUTUBE_LANG_MAP = {
 }
 
 FORMAT = "[%(name)s::%(asctime)s] %(levelname)s:%(message)s"
+
+# create "/output" directory if it doesn't exist yet and write "run.log" file
+log = pathlib.Path("/output").joinpath("run.log")
+log.parent.mkdir(parents=True, exist_ok=True)
+log.touch()
+# create logger
 logger = getLogger(
     NAME,
     level=logging.DEBUG,
-    file="/output/run.log",
+    file=log,
     file_format=FORMAT,
     file_level=logging.DEBUG,
 )

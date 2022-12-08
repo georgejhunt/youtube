@@ -132,10 +132,14 @@ class Youtube2Zim:
             tmp_dir.mkdir(parents=True, exist_ok=True)
         self.build_dir = Path(tempfile.mkdtemp(dir=tmp_dir))
 
-        # log file creation
-        log = Path("/output/run.log")
-        log.touch(exist_ok=True)
-        f = open(log)
+        # logging
+        log = self.output_dir / "run.log"
+        if not log.exists() or log.stat().st_size == 0:
+            with open(log, "a") as f:
+                f.write(f"Log file created on {datetime.datetime.now()}\n")
+        if log.exists() and log.stat().st_size != 0:
+            with open(log, "a") as f:
+                f.write(f"\nLog for {self.name} started on {datetime.datetime.now()}\n")
 
         # process-related
         self.playlists = []
