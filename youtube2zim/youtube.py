@@ -3,7 +3,9 @@
 # vim: ai ts=4 sts=4 et sw=4 nu
 
 import requests
+from contextlib import ExitStack
 from dateutil import parser as dt_parser
+from pytube import extract
 from zimscraperlib.download import stream_file
 from zimscraperlib.image.transformation import resize_image
 
@@ -22,13 +24,14 @@ RESULTS_PER_PAGE = 50  # max: 50
 
 
 class Playlist:
-    def __init__(self, playlist_id, title, description, creator_id, creator_name):
+    def __init__(self, playlist_id, title, custom_titles, description, creator_id, creator_name):
         self.playlist_id = playlist_id
         self.title = title
         self.description = description
         self.creator_id = creator_id
         self.creator_name = creator_name
         self.slug = get_slug(title, js_safe=True)
+        self.custom_titles = custom_titles
 
     @classmethod
     def from_id(cls, playlist_id):
@@ -146,6 +149,11 @@ def get_playlist_json(playlist_id):
         req.raise_for_status()
         try:
             playlist_json = req.json()["items"][0]
+            items = playlist_json
+            if self.custom_titles:
+                # replace playlist title with custom title
+                items = self.custom_titles.get(items, self.custom_titles)
+                playlist_json = items
         except IndexError:
             logger.error(f"Invalid playlistId `{playlist_id}`: Not Found")
             raise
@@ -184,6 +192,8 @@ def get_videos_json(playlist_id):
         req.raise_for_status()
         videos_json = req.json()
         items += videos_json["items"]
+        if self.custom_titles:
+            items = self.replace_titles(items, self.custom_titles)
         page_token = videos_json.get("nextPageToken")
         if not page_token:
             break
@@ -191,6 +201,57 @@ def get_videos_json(playlist_id):
     save_json(YOUTUBE.cache_dir, fname, items)
     return items
 
+# Replace some video titles reading 2 text files, one for the video id and one for the title (called with --custom-titles)
+def replace_titles(items, custom_titles):
+    """replace video titles with custom titles from file"""
+    logger.debug(f"found {len(custom_titles)} custom titles files")
+    custom_titles_files = self.custom_titles
+    titles = []
+    ids = []
+
+    # iterate through the files in custom_titles_files
+    with ExitStack() as stack:
+        files = [stack.enter_context(open(fname)) for fname in custom_titles_files]
+        for f in files:
+            # log the number of lines in each file
+            logger.debug(f"found {len(f.readlines())} custom titles in {f.name}")
+            # reset the file pointer to the beginning of the file
+            f.seek(0)
+            # iterate through the lines in the file
+            for line in f:
+                if line.startswith("https://"):
+                    # if the line starts with https://, extract the video id from the url
+                    ids.append(extract.video_id(line))
+                    logger.debug(f"found video id {ids[-1]}")
+                else:
+                    # otherwise, append the line to the titles list
+                    titles.append(line.rstrip())
+                    logger.debug(f"found title {titles[-1]}")
+        
+        # check that the number of titles and ids are the same
+        if len(titles) != len(ids):
+            logger.error(
+                f"number of titles ({len(titles)}) and ids ({len(ids)}) do not match"
+            )
+            raise ValueError("number of titles and ids do not match")
+        
+        # check if there are duplicate ids
+        if len(ids) != len(set(ids)):
+            logger.error(f"Duplicate ids found: "
+            {item for item, count in collections.Counter(ids).items() if count > 1}
+            )
+            raise ValueError("duplicate ids found")
+
+    # iterate through the json file and replace the title with the title from the list of titles
+    v_index = 0
+    for id in ids:
+        if ids[v_index] in items:
+            logger.debug(f"replacing {items[id]['snippet']['title']} with {titles[v_index]}")
+            items[id]["snippet"]["title"] = titles[v_index]
+            v_index += 1
+        else:
+            logger.debug(f"video id {id} not found in json file")
+    return items
 
 def get_videos_authors_info(videos_ids):
     """query authors' info for each video from their relative channel"""

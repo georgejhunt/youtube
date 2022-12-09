@@ -18,10 +18,8 @@ import re
 import shutil
 import subprocess
 import tempfile
-from contextlib import ExitStack
 from gettext import gettext as _
 from pathlib import Path
-from pytube import extract
 
 import jinja2
 import yt_dlp
@@ -86,7 +84,6 @@ class Youtube2Zim:
         dateafter,
         use_any_optimized_version,
         s3_url_with_credentials,
-        custom_titles,
         title=None,
         description=None,
         creator=None,
@@ -484,64 +481,6 @@ class Youtube2Zim:
             # we only return video_ids that we'll use later on. per-playlist JSON stored
             for playlist in self.playlists:
                 videos_json = get_videos_json(playlist.playlist_id)
-                if self.custom_titles:
-                    # print number of files found in self.custom_titles
-                    logger.info(
-                        f"found {len(self.custom_titles)} custom titles for videos"
-                    )
-
-                    # the text files inputted by the user
-                    custom_titles_files = self.custom_titles
-                    titles = []
-                    ids = []
-
-                    # iterate through the list of files
-                    with ExitStack() as stack:
-                        files = [
-                            stack.enter_context(open(fname))
-                            for fname in custom_titles_files
-                        ]
-                        # iterate through the files
-                        # count and log the number of lines in each file
-                        for f in files:
-                            logger.info(f"found {len(f.readlines())} lines in {f.name}")
-                            f.seek(0)
-                            for line in f:
-                                if line.startswith("https://"):
-                                    # if the line starts with a url, extract the video id
-                                    ids.append(extract.video_id(line))
-                                    logger.info(f"found video id {ids[-1]}")
-                                else:
-                                    # otherwise, add the line to the titles list
-                                    titles.append(line.rstrip())
-                                    logger.info(f"found title {titles[-1]}")
-
-                        # Checking if the number of titles and ids match
-                        if len(titles) != len(ids):
-                            raise ValueError(
-                                "The number of titles and ids don't match. "
-                                "Please check your input files."
-                            )
-
-                        # Checking if there are duplicate ids
-                        if len(ids) != len(set(ids)):
-                            raise ValueError(
-                                "There are duplicate ids. "
-                                "Please check your input files."
-                                "Duplicate ids: "
-                                f"{[item for item, count in Counter(ids).items() if count > 1]}"
-                            )
-
-                                                       
-                    # iterate through the videos_json and check if the video id is in the list of ids
-                    # if it is, replace the title with the title from the list of titles
-                    v_index = 0
-                    for item in videos_json:
-                        if v_index < len(titles):
-                            if item["contentDetails"]["videoId"] == ids[v_index]:
-                                logger.info(f"replacing {item['snippet']['title']} with {titles[v_index]}")
-                                item["snippet"]["title"] = titles[v_index]
-                                v_index += 1
                      
                 # filter in videos within date range and filter away deleted videos
                 skip_outofrange = functools.partial(
@@ -1027,64 +966,6 @@ class Youtube2Zim:
                 playlist_videos = load_json(
                     self.cache_dir, f"playlist_{playlist.playlist_id}_videos"
                 )
-
-                if self.custom_titles:
-                    # print number of files found in self.custom_titles
-                    logger.info(
-                        f"found {len(self.custom_titles)} custom titles for videos"
-                    )
-
-                    # the files to be converted
-                    custom_titles_files = self.custom_titles
-                    titles = []
-                    ids = []
-
-                    # iterate through the list of files
-                    with ExitStack() as stack:
-                        files = [
-                            stack.enter_context(open(fname))
-                            for fname in custom_titles_files
-                        ]
-                        # iterate through the files
-                        # count and log the number of lines in each file
-                        for f in files:
-                            logger.info(f"found {len(f.readlines())} lines in {f.name}")
-                            f.seek(0)
-                            for line in f:
-                                if line.startswith("https://"):
-                                    # if the line starts with a url, extract the video id
-                                    ids.append(extract.video_id(line))
-                                    logger.info(f"found video id {ids[-1]}")
-                                else:
-                                    # otherwise, add the line to the titles list
-                                    titles.append(line.rstrip())
-                                    logger.info(f"found title {titles[-1]}")
-
-                        # Checking if the number of titles and ids match
-                        if len(titles) != len(ids):
-                            raise ValueError(
-                                "The number of titles and ids don't match. "
-                                "Please check your input files."
-                            )
-
-                        # Checking if there are duplicate ids
-                        if len(ids) != len(set(ids)):
-                            raise ValueError(
-                                "There are duplicate ids. "
-                                "Please check your input files."
-                                "Duplicate ids: "
-                                f"{[item for item, count in Counter(ids).items() if count > 1]}"
-                            )
-                                    
-                    # iterate through the playlist_videos and check if the video id is in the list of ids
-                    # if it is, replace the title with the title from the list of titles
-                    p_index = 0
-                    for item in playlist_videos:
-                        if p_index < len(ids):
-                            if item["contentDetails"]["videoId"] == ids[p_index]:
-                                logger.info(f"replacing {item['snippet']['title']} with {titles[p_index]}")
-                                item["snippet"]["title"] = titles[p_index]
-                                p_index += 1
 
                 # filtering-out missing ones (deleted or not downloaded)
                 playlist_videos = list(filter(skip_deleted_videos, playlist_videos))
