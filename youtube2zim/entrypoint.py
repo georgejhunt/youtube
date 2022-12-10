@@ -73,7 +73,7 @@ def main():
     )
 
     parser.add_argument(
-        "--custom_titles",
+        "--custom-titles",
         nargs="+",
         help="Replace titles with custom titles from text files",
         default=False,

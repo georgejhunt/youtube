@@ -11,7 +11,6 @@ from zimscraperlib.image.transformation import resize_image
 
 from .constants import CHANNEL, PLAYLIST, USER, YOUTUBE, logger
 from .utils import get_slug, load_json, save_json
-from .entrypoint import CONSOLE_ARGS
 
 YOUTUBE_API = "https://www.googleapis.com/youtube/v3"
 PLAYLIST_API = f"{YOUTUBE_API}/playlists"
@@ -22,8 +21,6 @@ SEARCH_API = f"{YOUTUBE_API}/search"
 VIDEOS_API = f"{YOUTUBE_API}/videos"
 MAX_VIDEOS_PER_REQUEST = 50  # for VIDEOS_API
 RESULTS_PER_PAGE = 50  # max: 50
-
-custom_titles = CONSOLE_ARGS.custom_titles
 
 class Playlist:
     def __init__(self, playlist_id, title, description, creator_id, creator_name):
@@ -151,10 +148,6 @@ def get_playlist_json(playlist_id):
         try:
             playlist_json = req.json()["items"][0]
             items = playlist_json
-            if custom_titles:
-                # replace videos titles with custom titles
-                items = replace_titles(items, custom_titles)
-                playlist_json["items"] = items
         except IndexError:
             logger.error(f"Invalid playlistId `{playlist_id}`: Not Found")
             raise
@@ -193,9 +186,6 @@ def get_videos_json(playlist_id):
         req.raise_for_status()
         videos_json = req.json()
         items += videos_json["items"]
-        if custom_titles:
-            # replace videos titles with custom titles
-            items = replace_titles(items, custom_titles)
         page_token = videos_json.get("nextPageToken")
         if not page_token:
             break
@@ -253,7 +243,6 @@ def replace_titles(items, custom_titles):
             v_index += 1
         else:
             logger.debug(f"video id {id} not found in json file")
-    return items
 
 def get_videos_authors_info(videos_ids):
     """query authors' info for each video from their relative channel"""
