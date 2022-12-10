@@ -202,8 +202,6 @@ def main():
 
     args = parser.parse_args()
     logger.setLevel(logging.DEBUG if args.debug else logging.INFO)
-    global CONSOLE_ARGS
-    CONSOLE_ARGS = args
 
     try:
         if args.max_concurrency < 1:
