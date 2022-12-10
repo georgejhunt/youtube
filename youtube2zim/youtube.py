@@ -23,8 +23,7 @@ VIDEOS_API = f"{YOUTUBE_API}/videos"
 MAX_VIDEOS_PER_REQUEST = 50  # for VIDEOS_API
 RESULTS_PER_PAGE = 50  # max: 50
 
-custom_titles = sys.modules['__main__'].custom_titles
-
+custom_titles = CONSOLE_ARGS.custom_titles
 
 class Playlist:
     def __init__(self, playlist_id, title, description, creator_id, creator_name):
