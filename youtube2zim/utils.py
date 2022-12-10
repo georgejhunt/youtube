@@ -6,7 +6,6 @@ import json
 
 from slugify import slugify
 
-
 def get_slug(text, js_safe=True):
     """slug from text to build URL parts"""
     if js_safe:
