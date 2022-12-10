@@ -3,7 +3,6 @@
 # vim: ai ts=4 sts=4 et sw=4 nu
 
 import requests
-import sys
 from contextlib import ExitStack
 from dateutil import parser as dt_parser
 from pytube import extract
@@ -12,6 +11,7 @@ from zimscraperlib.image.transformation import resize_image
 
 from .constants import CHANNEL, PLAYLIST, USER, YOUTUBE, logger
 from .utils import get_slug, load_json, save_json
+from .entrypoint import CONSOLE_ARGS
 
 YOUTUBE_API = "https://www.googleapis.com/youtube/v3"
 PLAYLIST_API = f"{YOUTUBE_API}/playlists"
