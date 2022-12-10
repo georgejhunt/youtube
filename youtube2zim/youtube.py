@@ -236,13 +236,12 @@ def replace_titles(items, custom_titles):
 
     # iterate through the json file and replace the title with the title from the list of titles
     v_index = 0
-    for id in ids:
+    for item in items:
         if v_index < len(ids):
-            logger.debug(f"replacing {items[id]['snippet']['title']} with {titles[v_index]}")
-            items[id]["snippet"]["title"] = titles[v_index]
-            v_index += 1
-        else:
-            logger.debug(f"video id {id} not found in json file")
+            if item["contentDetails"]["videoId"] == ids[v_index]:
+                logger.info(f"replacing {item['snippet']['title']} with {titles[v_index]}")
+                item["snippet"]["title"] = titles[v_index]
+                v_index += 1
 
 def get_videos_authors_info(videos_ids):
     """query authors' info for each video from their relative channel"""
