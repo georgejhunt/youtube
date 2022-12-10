@@ -237,7 +237,7 @@ def replace_titles(items, custom_titles):
     # iterate through the json file and replace the title with the title from the list of titles
     v_index = 0
     for id in ids:
-        if ids[v_index] in items:
+        if v_index < len(ids):
             logger.debug(f"replacing {items[id]['snippet']['title']} with {titles[v_index]}")
             items[id]["snippet"]["title"] = titles[v_index]
             v_index += 1
