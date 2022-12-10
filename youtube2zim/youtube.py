@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # vim: ai ts=4 sts=4 et sw=4 nu
 
+import glob
 import requests
 from contextlib import ExitStack
 from dateutil import parser as dt_parser
@@ -10,7 +11,7 @@ from zimscraperlib.download import stream_file
 from zimscraperlib.image.transformation import resize_image
 
 from .constants import CHANNEL, PLAYLIST, USER, YOUTUBE, logger
-from .utils import get_slug, load_json, save_json
+from .utils import get_slug, load_json, save_json, has_argument
 
 YOUTUBE_API = "https://www.googleapis.com/youtube/v3"
 PLAYLIST_API = f"{YOUTUBE_API}/playlists"
@@ -24,14 +25,13 @@ RESULTS_PER_PAGE = 50  # max: 50
 
 
 class Playlist:
-    def __init__(self, playlist_id, title, custom_titles, description, creator_id, creator_name):
+    def __init__(self, playlist_id, title, description, creator_id, creator_name):
         self.playlist_id = playlist_id
         self.title = title
         self.description = description
         self.creator_id = creator_id
         self.creator_name = creator_name
         self.slug = get_slug(title, js_safe=True)
-        self.custom_titles = custom_titles
 
     @classmethod
     def from_id(cls, playlist_id):
@@ -150,10 +150,10 @@ def get_playlist_json(playlist_id):
         try:
             playlist_json = req.json()["items"][0]
             items = playlist_json
-            if self.custom_titles:
-                # replace playlist title with custom title
-                items = self.custom_titles.get(items, self.custom_titles)
-                playlist_json = items
+            if has_argument("--custom-titles"):
+                # replace videos titles with custom titles
+                items = replace_titles(items, custom_titles)
+                playlist_json["items"] = items
         except IndexError:
             logger.error(f"Invalid playlistId `{playlist_id}`: Not Found")
             raise
@@ -192,8 +192,9 @@ def get_videos_json(playlist_id):
         req.raise_for_status()
         videos_json = req.json()
         items += videos_json["items"]
-        if self.custom_titles:
-            items = self.replace_titles(items, self.custom_titles)
+        if has_argument("--custom-titles"):
+            # replace videos titles with custom titles
+            items = replace_titles(items, custom_titles)
         page_token = videos_json.get("nextPageToken")
         if not page_token:
             break
@@ -201,11 +202,14 @@ def get_videos_json(playlist_id):
     save_json(YOUTUBE.cache_dir, fname, items)
     return items
 
+
 # Replace some video titles reading 2 text files, one for the video id and one for the title (called with --custom-titles)
 def replace_titles(items, custom_titles):
     """replace video titles with custom titles from file"""
+    # get the list of custom titles files
+    custom_titles = glob.glob(custom_titles)
     logger.debug(f"found {len(custom_titles)} custom titles files")
-    custom_titles_files = self.custom_titles
+    custom_titles_files = custom_titles
     titles = []
     ids = []
 
@@ -237,10 +241,7 @@ def replace_titles(items, custom_titles):
         
         # check if there are duplicate ids
         if len(ids) != len(set(ids)):
-            logger.error(f"Duplicate ids found: "
-            {item for item, count in collections.Counter(ids).items() if count > 1}
-            )
-            raise ValueError("duplicate ids found")
+            logger.error(f"duplicate ids found: {item for item, count in collections.Counter(ids).items() if count > 1}")
 
     # iterate through the json file and replace the title with the title from the list of titles
     v_index = 0

@@ -84,6 +84,7 @@ class Youtube2Zim:
         dateafter,
         use_any_optimized_version,
         s3_url_with_credentials,
+        custom_titles,
         title=None,
         description=None,
         creator=None,
