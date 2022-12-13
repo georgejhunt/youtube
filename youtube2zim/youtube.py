@@ -200,7 +200,7 @@ def replace_titles(items, custom_titles):
     # get the list of custom titles files
     # custom_titles = glob.glob(custom_titles)
     logger.debug(f"found {len(custom_titles)} custom titles files")
-    # raise an error if no files, empty files or only one file is found
+    # raise an error if there are not exactly 2 custom titles files
     if len(custom_titles) == 0:
         logger.error("no custom titles files found")
         raise ValueError("no custom titles files found")

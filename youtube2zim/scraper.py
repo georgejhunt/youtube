@@ -59,7 +59,7 @@ from .youtube import (
     skip_outofrange_videos,
 )
 
-
+#  here we define the default values for the scraper options
 class Youtube2Zim:
     def __init__(
         self,
@@ -124,7 +124,7 @@ class Youtube2Zim:
         self.secondary_color = secondary_color
         self.custom_titles = custom_titles
 
-        # directory setup
+        # directory setup 
         self.output_dir = Path(output_dir).expanduser().resolve()
         if tmp_dir:
             tmp_dir = Path(tmp_dir).expanduser().resolve()
@@ -135,10 +135,10 @@ class Youtube2Zim:
         log = self.output_dir / "run.log"
         if not log.exists() or log.stat().st_size == 0:
             with open(log, "a") as f:
-                f.write(f"Log file created on {datetime.datetime.now()}\n")
+                f.write(f"Log file created on {datetime.datetime.now()}\n====================\n")
         if log.exists() and log.stat().st_size != 0:
             with open(log, "a") as f:
-                f.write(f"\nLog for {self.name} started on {datetime.datetime.now()}\n")
+                f.write(f"\nLog for {self.name} started on {datetime.datetime.now()}\n====================\n")
 
         # process-related
         self.playlists = []
@@ -152,12 +152,12 @@ class Youtube2Zim:
         self.keep_build_dir = keep_build_dir
         self.max_concurrency = max_concurrency
 
-        # update youtube credentials store
+        # update youtube_store with current options (for caching) 
         youtube_store.update(
             build_dir=self.build_dir, api_key=self.api_key, cache_dir=self.cache_dir
         )
 
-        # Optimization-cache
+        # Optimization-cache related options 
         self.s3_url_with_credentials = s3_url_with_credentials
         self.use_any_optimized_version = use_any_optimized_version
         self.video_quality = "low" if self.low_quality else "high"
@@ -174,10 +174,7 @@ class Youtube2Zim:
             )
             self.locale = setlocale(ROOT_DIR, "en")
 
-    @property
-    def root_dir(self):
-        return ROOT_DIR
-
+    #  Here we define the directory structure of the scraper
     @property
     def templates_dir(self):
         return self.root_dir.joinpath("templates")
@@ -252,6 +249,7 @@ class Youtube2Zim:
             + sorted_playlists[index + 1 :]
         )
 
+    # This is the main function of the scraper
     def run(self):
         """execute the scraper step by step"""
 
@@ -274,8 +272,10 @@ class Youtube2Zim:
             raise ValueError("Unable to connect to Optimization Cache. Check its URL.")
 
         # fail early if supplied branding files are missing
+        # (we don't want to download videos and then fail)
         self.check_branding_values()
 
+        # Here we get the list of videos to download
         logger.info("compute playlists list to retrieve")
         self.extract_playlists()
 
@@ -289,6 +289,7 @@ class Youtube2Zim:
         logger.info("compute list of videos")
         self.extract_videos_list()
 
+        # we count the number of videos to download
         nb_videos_msg = f".. {len(self.videos_ids)} videos"
         if self.dateafter.start.year != 1:
             nb_videos_msg += (
@@ -330,7 +331,7 @@ class Youtube2Zim:
         logger.info("creating HTML files")
         self.make_html_files(succeeded)
 
-        # make zim file
+        # create the ZIM file and move it to the output dir
         os.makedirs(self.output_dir, exist_ok=True)
         if not self.no_zim:
             period = datetime.datetime.now().strftime("%Y-%m")
@@ -362,6 +363,7 @@ class Youtube2Zim:
         logger.info("all done!")
 
     def s3_credentials_ok(self):
+        """test S3 credentials"""
         logger.info("testing S3 Optimization Cache credentials")
         self.s3_storage = KiwixStorage(self.s3_url_with_credentials)
         if not self.s3_storage.check_credentials(
@@ -376,6 +378,7 @@ class Youtube2Zim:
         return True
 
     def validate_dateafter_input(self):
+        """validate dateafter input"""
         try:
             self.dateafter = yt_dlp.DateRange(self.dateafter)
         except Exception as exc:
@@ -386,6 +389,7 @@ class Youtube2Zim:
             raise ValueError(f"Invalid dateafter input: {exc}")
 
     def validate_id(self):
+        """validate youtube-id and collection-type"""
         # space not allowed in youtube-ID
         self.youtube_id = self.youtube_id.replace(" ", "")
         if self.collection_type == "channel" and len(self.youtube_id) > 24:
@@ -467,7 +471,7 @@ class Youtube2Zim:
 
         USER: we fetch the hidden channel associate to it
         CHANNEL (and USER): we grab all playlists + `uploads` playlist
-        PLAYLIST: we retrieve from the playlist Id(s)"""
+        PLAYLIST: we retrieve from the playlist Id(s) the list of videos"""
 
         (
             self.playlists,
@@ -476,11 +480,12 @@ class Youtube2Zim:
         ) = extract_playlists_details_from(self.collection_type, self.youtube_id)
 
     def extract_videos_list(self):
+        """extract videos list from playlists and cache it"""
         all_videos = load_json(self.cache_dir, "videos")
         if all_videos is None:
             all_videos = {}
 
-            # we only return video_ids that we'll use later on. per-playlist JSON stored
+            # We fetch videos from playlists and cache them in a single file (all_videos) to avoid fetching them again. We only fetch videos that are within the date range and that are not deleted. 
             for playlist in self.playlists:
                 videos_json = get_videos_json(playlist.playlist_id)
                 # we replace videos titles if --custom-titles is used
@@ -499,7 +504,7 @@ class Youtube2Zim:
         self.videos_ids = [*all_videos.keys()]  # unpacking so it's subscriptable
 
     def download_video_files(self, max_concurrency):
-
+        """download video files and subtitles"""
         audext, vidext = {"webm": ("webm", "webm"), "mp4": ("m4a", "mp4")}[
             self.video_format
         ]
@@ -538,6 +543,7 @@ class Youtube2Zim:
 
         # prepare out videos_ids batches
         def get_slot():
+            """generator to get the next slot to use"""
             n = 0
             while True:
                 yield n
@@ -583,8 +589,10 @@ class Youtube2Zim:
         logger.debug(f"removing left-over files of {len(overall_failed)} failed videos")
         for video_id in overall_failed:
             shutil.rmtree(self.videos_dir.joinpath(video_id), ignore_errors=True)
-
+        if overall_failed:
+            logger.error(f"failed to download {len(overall_failed)} videos")
         return overall_succeeded, overall_failed
+
 
     def download_from_cache(self, key, video_path, encoder_version):
         """whether it successfully downloaded from cache"""
@@ -738,6 +746,7 @@ class Youtube2Zim:
         return succeeded, failed
 
     def download_authors_branding(self):
+        """download channel/user branding for all videos"""
         videos_channels_json = load_json(self.cache_dir, "videos_channels")
         uniq_channel_ids = list(
             set([chan["channelId"] for chan in videos_channels_json.values()])
@@ -747,6 +756,7 @@ class Youtube2Zim:
             self.copy_default_banner(channel_id)
 
     def copy_default_banner(self, channel_id):
+        """copy default banner if channel/user has no banner"""
         banner_path = self.channels_dir / channel_id / "banner.jpg"
         if not banner_path.exists():
             shutil.copy(
@@ -755,6 +765,7 @@ class Youtube2Zim:
             )
 
     def update_metadata(self):
+        """update metadata for all videos"""
         # we use title, description, profile and banner of channel/user
         # or channel of first playlist
         try:
