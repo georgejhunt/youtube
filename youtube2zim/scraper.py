@@ -176,6 +176,10 @@ class Youtube2Zim:
 
     #  Here we define the directory structure of the scraper
     @property
+    def root_dir(self):
+        return ROOT_DIR
+
+    @property
     def templates_dir(self):
         return self.root_dir.joinpath("templates")
 
