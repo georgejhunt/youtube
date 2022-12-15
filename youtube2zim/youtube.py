@@ -396,7 +396,9 @@ def extract_playlists_details_from(collection_type, youtube_id):
 def get_videos_duration_and_size(videos):
     """Duration of each youtube video in human readable format in a pretty table format saved in a file"""
     max_lengths = [0, 0, 0, 0]
-    for video in videos:
+    for item in videos:
+        video_id = item["contentDetails"]["videoId"]
+        title = item["snippet"]["title"]
         # video_id, title, duration(00:00:00), size(0.00MB)
         # fetch duration and size via pytube
         logger.debug("fetching video duration and size")
