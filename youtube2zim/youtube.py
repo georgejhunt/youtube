@@ -449,8 +449,8 @@ def get_videos_duration_and_size(videos):
         [
             "Total",
             "",
-            str(timedelta(seconds=sum([v.duration for v in videos]))),
-            f"{sum([v.size for v in videos]) / 1000000:.2f}MB",
+            f"{sum([duration for v in videos]) / 60:.2f}min",
+            f"{sum([filesize for v in videos]) / 1000000:.2f}MB",
         ]
     )
     print(table)
