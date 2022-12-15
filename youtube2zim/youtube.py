@@ -402,7 +402,7 @@ def get_videos_duration_and_size(videos):
         logger.debug("fetching video duration and size")
         # duration
         # result = YouTube(video.url).streams.first()
-        video.duration = PytubeYouTube(video.url).streams.first().length
+        video.duration = PytubeYouTube("https://www.youtube.com/watch?v=" + video.video_id).length
         # size
         for s in result.streams.filter(res="720p" ):
             video.size = s.filesize
