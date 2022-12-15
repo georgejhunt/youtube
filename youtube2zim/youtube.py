@@ -405,22 +405,22 @@ def get_videos_duration_and_size(videos):
         # duration
         # result = YouTube(video.url).streams.first()
 
-        video.duration = PytubeYouTube("https://www.youtube.com/watch?v=" + video_id).length
+        duration = PytubeYouTube("https://www.youtube.com/watch?v=" + video_id).length
         # size
         for s in result.streams.filter(res="720p" ):
-            video.size = s.filesize
+            size = s.filesize
 
         # now we can compute the max length of each column
-        max_lengths[0] = max(max_lengths[0], len(video.video_id))
-        max_lengths[1] = max(max_lengths[1], len(video.title))
+        max_lengths[0] = max(max_lengths[0], len(video_id))
+        max_lengths[1] = max(max_lengths[1], len(title))
         # we need to convert the duration to human readable format
-        video.duration = str(
-            datetime.timedelta(seconds=parse_duration(video.duration))
+        duration = str(
+            datetime.timedelta(seconds=parse_duration(duration))
         )
-        max_lengths[2] = max(max_lengths[2], len(video.duration))
+        max_lengths[2] = max(max_lengths[2], len(duration))
         # we need to convert the size to human readable format
-        video.size = f"{int(video.size) / 1000000:.2f}MB"
-        max_lengths[3] = max(max_lengths[3], len(video.size))
+        size = f"{int(video.size) / 1000000:.2f}MB"
+        max_lengths[3] = max(max_lengths[3], len(size))
 
         # now we can create the table
     table = PrettyTable()
@@ -438,10 +438,10 @@ def get_videos_duration_and_size(videos):
     for video in videos:
         table.add_row(
             [
-                video.video_id,
-                video.title,
-                video.duration,
-                video.size,
+                video_id,
+                title,
+                duration,
+                size,
             ]
         )
     table.add_row(
