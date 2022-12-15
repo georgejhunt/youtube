@@ -9,4 +9,5 @@ zimscraperlib>=2.0.0,<3.0
 requests>=2.26.0,<3.0
 kiwixstorage>=0.8.1,<1.0
 pif==0.8.2
+prettytable
 pytube
