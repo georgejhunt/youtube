@@ -4,6 +4,9 @@
 
 import requests
 from contextlib import ExitStack
+from datetime import datetime
+from pathlib import Path
+from urllib.parse import urlparse
 from dateutil import parser as dt_parser
 from pytube import extract
 from zimscraperlib.download import stream_file
@@ -389,3 +392,65 @@ def extract_playlists_details_from(collection_type, youtube_id):
         main_channel_id,
         uploads_playlist_id,
     )
+
+def get_videos_duration_and_size(videos):
+    """Duration of each youtube video in human readable format in a pretty table format saved in a file"""
+    max_lengths = [0, 0, 0, 0]
+    for video in videos:
+        # video_id, title, duration(00:00:00), size(0.00MB)
+        # fetch duration and size via pytube
+        logger.debug("fetching video duration and size")
+        # duration
+        # result = YouTube(video.url).streams.first()
+        video.duration = YouTube(video.url).streams.first().length
+        # size
+        for s in result.streams.filter(res="720p" ):
+            video.size = s.filesize
+
+        # now we can compute the max length of each column
+        max_lengths[0] = max(max_lengths[0], len(video.video_id))
+        max_lengths[1] = max(max_lengths[1], len(video.title))
+        # we need to convert the duration to human readable format
+        video.duration = str(
+            datetime.timedelta(seconds=parse_duration(video.duration))
+        )
+        max_lengths[2] = max(max_lengths[2], len(video.duration))
+        # we need to convert the size to human readable format
+        video.size = f"{int(video.size) / 1000000:.2f}MB"
+        max_lengths[3] = max(max_lengths[3], len(video.size))
+
+        # now we can create the table
+    table = PrettyTable()
+    table.field_names = ["Video ID", "Title", "Duration", "Size"]
+    table.align["Video ID"] = "l"
+    table.align["Title"] = "l"
+    table.align["Duration"] = "l"
+    table.align["Size"] = "l"
+    # we need to add the max length of each column to the table
+    table.max_width["Video ID"] = max_lengths[0]
+    table.max_width["Title"] = max_lengths[1]
+    table.max_width["Duration"] = max_lengths[2]
+    table.max_width["Size"] = max_lengths[3]
+    # now we can add the videos to the table and also a total row
+    for video in videos:
+        table.add_row(
+            [
+                video.video_id,
+                video.title,
+                video.duration,
+                video.size,
+            ]
+        )
+    table.add_row(
+        [
+            "Total",
+            "",
+            str(datetime.timedelta(seconds=sum([v.duration for v in videos]))),
+            f"{sum([v.size for v in videos]) / 1000000:.2f}MB",
+        ]
+    )
+    print(table)
+    # save the table in a file named after the zim file name with the extension .txt
+    # the file is saved in the same directory as the zim file (/output)
+    with open(f"{output_dir}/{name}.txt", "w") as f:
+        f.write(table.get_string())

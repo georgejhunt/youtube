@@ -49,6 +49,7 @@ from .processing import post_process_video, process_thumbnail
 from .utils import clean_text, get_slug, load_json, save_json
 from .youtube import (
     credentials_ok,
+    get_videos_duration_and_size,
     extract_playlists_details_from,
     get_channel_json,
     get_videos_authors_info,
@@ -492,6 +493,8 @@ class Youtube2Zim:
             # We fetch videos from playlists and cache them in a single file (all_videos) to avoid fetching them again. We only fetch videos that are within the date range and that are not deleted. 
             for playlist in self.playlists:
                 videos_json = get_videos_json(playlist.playlist_id)
+                # we use the get_videos_duration_and_size function from the youtube.py file to print and save to file a table with the duration and size of the videos
+                get_videos_duration_and_size(videos_json)
                 # we replace videos titles if --custom-titles is used
                 if self.custom_titles:
                     replace_titles(videos_json, self.custom_titles) 
