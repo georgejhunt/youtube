@@ -419,7 +419,7 @@ def get_videos_duration_and_size(videos):
         )
         max_lengths[2] = max(max_lengths[2], len(duration))
         # we need to convert the size to human readable format
-        size = f"{int(video.size) / 1000000:.2f}MB"
+        size = f"{int(size) / 1000000:.2f}MB"
         max_lengths[3] = max(max_lengths[3], len(size))
 
         # now we can create the table
