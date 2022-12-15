@@ -457,3 +457,8 @@ def get_videos_duration_and_size(videos):
     # the file is saved in the same directory as the zim file (/output)
     with open(f"{output_dir}/{name}.txt", "w") as f:
         f.write(table.get_string())
+
+def parse_duration(duration):
+    minutes, seconds = divmod(duration, 60)
+    hours, minutes = divmod(minutes, 60)
+    return "{:02d}:{:02d}:{:02d}".format(hours, minutes, seconds)
