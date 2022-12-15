@@ -397,7 +397,7 @@ def get_videos_duration_and_size(videos):
     """Duration of each youtube video in human readable format in a pretty table format saved in a file"""
     max_lengths = [0, 0, 0, 0]
     for video in videos:
-        video_id = video["contentDetails"]["videoId
+        video_id = video["contentDetails"]["videoId"]
         title = video["snippet"]["title"]
         # video_id, title, duration(00:00:00), size(0.00MB)
         # fetch duration and size via pytube
