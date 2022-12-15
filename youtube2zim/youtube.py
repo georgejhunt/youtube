@@ -6,9 +6,10 @@ import requests
 from contextlib import ExitStack
 from datetime import datetime, timedelta
 from pathlib import Path
+from prettytable import PrettyTable
 from urllib.parse import urlparse
 from dateutil import parser as dt_parser
-from pytube import extract, YouTube as PytubeYouTube
+from pytube import extract, exceptions, YouTube as PytubeYouTube
 from zimscraperlib.download import stream_file
 from zimscraperlib.image.transformation import resize_image
 
