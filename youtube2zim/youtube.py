@@ -414,9 +414,7 @@ def get_videos_duration_and_size(videos):
         max_lengths[0] = max(max_lengths[0], len(video_id))
         max_lengths[1] = max(max_lengths[1], len(title))
         # we need to convert the duration to human readable format
-        duration = str(
-            timedelta(seconds=parse_duration(duration))
-        )
+        duration = timedelta(seconds=parse_duration(duration))
         max_lengths[2] = max(max_lengths[2], len(duration))
         # we need to convert the size to human readable format
         size = f"{int(video.size) / 1000000:.2f}MB"
