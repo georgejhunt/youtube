@@ -407,7 +407,7 @@ def get_videos_duration_and_size(videos):
 
         duration = PytubeYouTube("https://www.youtube.com/watch?v=" + video_id).length
         # size
-        for s in result.streams.filter(res="720p" ):
+        for s in duration.streams.filter(res="720p" ):
             size = s.filesize
 
         # now we can compute the max length of each column
