@@ -8,7 +8,7 @@ from datetime import datetime
 from pathlib import Path
 from urllib.parse import urlparse
 from dateutil import parser as dt_parser
-from pytube import extract
+from pytube import extract, YouTube as PytubeYouTube
 from zimscraperlib.download import stream_file
 from zimscraperlib.image.transformation import resize_image
 
@@ -402,7 +402,7 @@ def get_videos_duration_and_size(videos):
         logger.debug("fetching video duration and size")
         # duration
         # result = YouTube(video.url).streams.first()
-        video.duration = YouTube(video.url).streams.first().length
+        video.duration = PytubeYouTube(video.url).streams.first().length
         # size
         for s in result.streams.filter(res="720p" ):
             video.size = s.filesize
