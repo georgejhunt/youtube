@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 # vim: ai ts=4 sts=4 et sw=4 nu
 
-import sys
 import pathlib
+import sys
 
 
 def main():
@@ -12,8 +12,8 @@ def main():
 
     from youtube2zim.entrypoint import main as entry
 
-    entry()
+    return entry()
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
